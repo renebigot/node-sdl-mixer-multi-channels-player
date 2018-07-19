@@ -1,5 +1,4 @@
 const fs = require('fs')
-const path = require('path')
 const MultiChannelsPlayer = require('./')
 const deviceName = 'Built-in Output'
 
