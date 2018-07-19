@@ -1,0 +1,12 @@
+{
+  "name": "sdl-mixer-multi-channels-player",
+  "version": "1.0.0",
+  "description": "Node library to play sounds through SDL Mixer on specific channels of specific audio devices.",
+  "main": "index.js",
+  "author": "René BIGOT",
+  "license": "MIT",
+  "dependencies": {
+    "bindings": "^1.3.0",
+    "nan": "^2.10.0"
+  }
+}
