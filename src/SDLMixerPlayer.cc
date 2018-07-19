@@ -31,8 +31,7 @@ public:
   static NAN_METHOD(Playing)
   {
     SDLMixerPlayer *self = Unwrap<SDLMixerPlayer>(info.Holder());
-    info.GetReturnValue().Set(self->_audioOpened &&
-                              Mix_Playing(CHANNEL_ID) > 0);
+    info.GetReturnValue().Set(self->_audioOpened && Mix_Playing(CHANNEL_ID) > 0);
   }
 
   static NAN_METHOD(PlayBuffer)
@@ -52,7 +51,7 @@ public:
     self->OpenAudioDevice(info);
 
     v8::Local<v8::Uint8Array> view = info[0].As<v8::Uint8Array>();
-    int8_t *buffer = static_cast<int8_t*>(view->Buffer()->GetContents().Data());
+    int8_t *buffer = static_cast<int8_t *>(view->Buffer()->GetContents().Data());
 
     SDL_RWops *sdlBuffer = SDL_RWFromMem(buffer, view->Length());
     self->_sound = Mix_LoadWAV_RW(sdlBuffer, 1);
@@ -143,7 +142,6 @@ private:
                             1024, self->_deviceName,
                             SDL_AUDIO_ALLOW_ANY_CHANGE) == -1)
     {
-
       printf("-------------------------------------------------\n");
       printf("Can't open audio device. Please, use a valid one:\n");
       int count = SDL_GetNumAudioDevices(0);
@@ -213,4 +211,33 @@ private:
   bool _audioOpened;
 };
 
-NODE_MODULE(objectwrapper, SDLMixerPlayer::Init)
+void AvailableDevices(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+  v8::Isolate *isolate = info.GetIsolate();
+
+  SDL_Init(SDL_INIT_AUDIO);
+  
+  int count = SDL_GetNumAudioDevices(0);
+  v8::Handle<v8::Array> array = v8::Array::New(isolate, count);
+
+  if (array.IsEmpty())
+  {
+    info.GetReturnValue().Set(v8::Handle<v8::Array>());
+    return;
+  }
+
+  for (int i = 0; i < count; ++i)
+  {
+    array->Set(i, Nan::New(SDL_GetAudioDeviceName(i, 0)).ToLocalChecked());
+  }
+
+  info.GetReturnValue().Set(array);
+}
+
+void InitAll(v8::Local<v8::Object> exports, v8::Local<v8::Object> module)
+{
+  NODE_SET_METHOD(exports, "availableDevices", AvailableDevices);
+  SDLMixerPlayer::Init(exports);
+}
+
+NODE_MODULE(SDLMixerPlayer, InitAll)
