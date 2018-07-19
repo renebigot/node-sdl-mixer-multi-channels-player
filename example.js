@@ -1,16 +1,27 @@
 const fs = require('fs')
 const MultiChannelsPlayer = require('./')
-const deviceName = 'Built-in Output'
 
-const channels = new MultiChannelsPlayer({
+console.log(MultiChannelsPlayer.availableDevices())
+
+const player = new MultiChannelsPlayer({
   channels: [
-    {deviceName: deviceName, channel: 0, logger: (...args) => console.log('[Channel 1]', ...args)},
-    {deviceName: deviceName, channel: 1, logger: (...args) => console.log('[Channel 2]', ...args)}
+    {channel: 0, debug: true},
+    {channel: 1, debug: true, logger: (...args) => console.log('[D1C2]', ...args)}
   ]
 })
 
 const file = 'test.wav'
-channels.playFile(0, file)
-setTimeout(() => { channels.playFile(0, file) }, 500)
+
+// Play file on channel 0
+player.playFile(0, file)
+
+// 500ms after app start play file on channel 0
+setTimeout(() => {
+  player.playFile(0, file)
+}, 500)
+
+// 800ms after app start play buffer on channel 1
 const buffer = Buffer.from(fs.readFileSync(file))
-setTimeout(() => { channels.playBuffer(1, buffer) }, 800)
+setTimeout(() => {
+  player.playBuffer(1, buffer)
+}, 800)
